@@ -17,6 +17,11 @@ BASE_BRANCH="${1:-master}"
 TEST_BRANCH=$(git -C "$JIFFY_ROOT" rev-parse --abbrev-ref HEAD)
 BENCH_DIR="$JIFFY_ROOT/bench"
 
+if ! git -C "$JIFFY_ROOT" diff --quiet || ! git -C "$JIFFY_ROOT" diff --cached --quiet; then
+    echo "ERROR: Working tree is dirty. Commit or stash changes before benchmarking." >&2
+    exit 1
+fi
+
 # OTP 27 and higher only has a built-in json module
 OTP_VER=$(erl -noshell -eval 'io:format("~s", [erlang:system_info(otp_release)])' -s init stop)
 if [ "$OTP_VER" -lt 27 ] 2>/dev/null; then

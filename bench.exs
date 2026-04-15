@@ -5,13 +5,10 @@ inputs_list = [
   "Blockchain",
   "Pokedex",
   "JSON Generator",
-  "JSON Generator (Pretty)",
   "UTF-8 escaped",
   "UTF-8 unescaped",
   "Issue 90",
-  "Large Numbers",
   "Canada",
-  # From https://github.com/simdjson/simdjson-data
   "Twitter",
   "CITM Catalog",
   "Semanticscholar Corpus",
@@ -40,8 +37,17 @@ inputs =
   end)
   |> Map.new()
 
+# When we're loading and not saving, label the job. Otherwise,
+# benchee will only tag runs loaded from save file and leave this
+# run as "bare"
+job_name =
+  case {System.get_env("BENCH_TAG"), System.get_env("BENCH_SAVE"), System.get_env("BENCH_LOAD")} do
+    {tag, nil, load} when is_binary(tag) and is_binary(load) -> "jiffy (#{tag})"
+    _ -> "jiffy"
+  end
+
 jobs = %{
-  "jiffy" => fn
+  job_name => fn
     {:decode, json} -> :jiffy.decode(json, [:return_maps, :use_nil])
     {:encode, term} -> :jiffy.encode(term)
   end,
@@ -55,8 +61,8 @@ end
 IO.puts("")
 
 bench_opts = [
-  warmup: 2,
-  time: 5,
+  warmup: 1,
+  time: 3,
   inputs: inputs,
   exclude_outliers: true
 ]
@@ -69,8 +75,12 @@ bench_opts =
 
 bench_opts =
   case System.get_env("BENCH_LOAD") do
-    nil -> bench_opts
-    path -> Keyword.put(bench_opts, :load, path)
+    nil ->
+      bench_opts
+    path ->
+      # ':' separated list of paths (so we can load multiple baselines)
+      paths = path |> String.split(":", trim: true)
+      Keyword.put(bench_opts, :load, paths)
   end
 
 Benchee.run(jobs, bench_opts)

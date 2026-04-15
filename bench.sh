@@ -55,10 +55,12 @@ trap cleanup EXIT
 # so fix it up to remove those. Cleanup a bunch of elixir compiler warnings as well
 #
 filter_output() {
+    # Benchee emits mu (U+00B5) and +/- (U+00B1) so we try to clean them up
     grep -v '^==>' \
     | grep -Ev '^\s*\((benchee|elixir)|^\s*warning:|^$' \
     | sed 's/μ/u/g; s/±/+\/-/g; s/#/=/g' \
-    | sed 's/\\x{3BC}/u/g; s/\\x{B1}/+\/-/g'
+    | sed 's/\\x{3BC}/u/g; s/\\x{B1}/+\/-/g' \
+    | LC_ALL=C sed "s/$(printf '\xb5')/u/g; s/$(printf '\xb1')/+\/-/g"
 }
 
 build_branch() {

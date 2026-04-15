@@ -57,7 +57,8 @@ trap cleanup EXIT
 filter_output() {
     grep -v '^==>' \
     | grep -Ev '^\s*\((benchee|elixir)|^\s*warning:|^$' \
-    | sed 's/μ/u/g; s/±/+\/-/g; s/#/=/g'
+    | sed 's/μ/u/g; s/±/+\/-/g; s/#/=/g' \
+    | sed 's/\\x{3BC}/u/g; s/\\x{B1}/+\/-/g'
 }
 
 build_branch() {

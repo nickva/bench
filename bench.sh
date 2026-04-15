@@ -4,7 +4,7 @@
 # Update the benchmark to compare against the built-in json
 #
 # Usage:
-#   bench/run_compare.sh [base_branch]
+#   bench/bench.sh [base_branch]
 #
 # The default branch is "master"
 
@@ -72,34 +72,20 @@ build_branch "$BASE_BRANCH"
 
 echo ""
 echo "================================================================"
-echo "  [$BASE_BRANCH] Decode (saving baseline)"
+echo "  [$BASE_BRANCH] Benchmark (saving baseline)"
 echo "================================================================"
-BENCH_TAG="$BASE_BRANCH" BENCH_SAVE="$RESULTS_DIR/decode-baseline.benchee" \
-    mix run decode.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
-
-echo ""
-echo "================================================================"
-echo "  [$BASE_BRANCH] Encode (saving baseline)"
-echo "================================================================"
-BENCH_TAG="$BASE_BRANCH" BENCH_SAVE="$RESULTS_DIR/encode-baseline.benchee" \
-    mix run encode.exs 2>&1 | filter_output
+BENCH_TAG="$BASE_BRANCH" BENCH_SAVE="$RESULTS_DIR/baseline.benchee" \
+    mix run bench.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
 
 # Run test branch and load baseline for comparison
 build_branch "$TEST_BRANCH"
 
 echo ""
 echo "================================================================"
-echo "  [$TEST_BRANCH vs $BASE_BRANCH] Decode"
+echo "  [$TEST_BRANCH vs $BASE_BRANCH] Benchmark"
 echo "================================================================"
-BENCH_TAG="$TEST_BRANCH" BENCH_LOAD="$RESULTS_DIR/decode-baseline.benchee" \
-    mix run decode.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
-
-echo ""
-echo "================================================================"
-echo "  [$TEST_BRANCH vs $BASE_BRANCH] Encode"
-echo "================================================================"
-BENCH_TAG="$TEST_BRANCH" BENCH_LOAD="$RESULTS_DIR/encode-baseline.benchee" \
-    mix run encode.exs 2>&1 | filter_output
+BENCH_TAG="$TEST_BRANCH" BENCH_LOAD="$RESULTS_DIR/baseline.benchee" \
+    mix run bench.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
 
 echo ""
 echo "All done"

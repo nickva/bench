@@ -7,5 +7,5 @@ It's designed to run from the jiffy directory and set up to compare it against
 OTP 27+ Erlang/OTP json module. To use clone this to jiffy directory and run:
 
 ``` shell
-./run_compare.sh <branch=master>
+./bench.sh <branch=master>
 ```

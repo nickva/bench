@@ -1,8 +1,4 @@
-decode_jobs = %{
-  "jiffy"    => fn {json, _} -> :jiffy.decode(json, [:return_maps, :use_nil]) end,
-}
-
-decode_inputs = [
+inputs_list = [
   "GitHub",
   "Giphy",
   "GovTrack",
@@ -14,33 +10,49 @@ decode_inputs = [
   "UTF-8 unescaped",
   "Issue 90",
   "Large Numbers",
+  "Canada",
   # From https://github.com/simdjson/simdjson-data
   "Twitter",
   "CITM Catalog",
   "Semanticscholar Corpus",
 ]
 
-read_data = fn (name) ->
+read_json = fn name ->
   file =
     name
     |> String.downcase
     |> String.replace(~r/([^\w]|-|_)+/, "-")
     |> String.trim("-")
 
-  json = File.read!(Path.expand("data/#{file}.json", __DIR__))
-  etf = :erlang.term_to_binary(:jiffy.decode(json, [:return_maps, :use_nil]))
-
-  {json, etf}
+  File.read!(Path.expand("data/#{file}.json", __DIR__))
 end
 
-inputs = for name <- decode_inputs, into: %{}, do: {name, read_data.(name)}
+# Build one benchee input per (op, document)
+inputs =
+  inputs_list
+  |> Enum.flat_map(fn name ->
+    json = read_json.(name)
+    term = :jiffy.decode(json, [:return_maps, :use_nil])
+    [
+      {"Decode " <> name, {:decode, json}},
+      {"Encode " <> name, {:encode, term}},
+    ]
+  end)
+  |> Map.new()
+
+jobs = %{
+  "jiffy" => fn
+    {:decode, json} -> :jiffy.decode(json, [:return_maps, :use_nil])
+    {:encode, term} -> :jiffy.encode(term)
+  end,
+}
 
 IO.puts("Checking jobs don't crash")
-for {name, input} <- inputs, {job, decode_job} <- decode_jobs do
+for {name, input} <- inputs, {job, fun} <- jobs do
   IO.puts("Testing #{job} #{name}")
-  decode_job.(input)
+  fun.(input)
 end
-IO.puts("\n")
+IO.puts("")
 
 bench_opts = [
   warmup: 2,
@@ -61,4 +73,4 @@ bench_opts =
     path -> Keyword.put(bench_opts, :load, path)
   end
 
-Benchee.run(decode_jobs, bench_opts)
+Benchee.run(jobs, bench_opts)

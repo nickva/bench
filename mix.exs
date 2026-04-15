@@ -14,8 +14,7 @@ defmodule JiffyBench.MixProject do
 
   defp aliases() do
     [
-      "bench.encode": ["run encode.exs"],
-      "bench.decode": ["run decode.exs"]
+      bench: ["run bench.exs"]
     ]
   end
 

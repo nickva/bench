@@ -14,6 +14,11 @@ decode_inputs = [
   "UTF-8 unescaped",
   "Issue 90",
   "Large Numbers",
+  # From https://github.com/simdjson/simdjson-data
+  "Twitter",
+  "CITM Catalog",
+  "Tree Pretty",
+  "Semanticscholar Corpus",
 ]
 
 read_data = fn (name) ->

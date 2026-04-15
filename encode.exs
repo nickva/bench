@@ -12,6 +12,11 @@ encode_inputs = [
   "UTF-8 unescaped",
   "Issue 90",
   "Canada",
+  # From https://github.com/simdjson/simdjson-data
+  "Twitter",
+  "CITM Catalog",
+  "Tree Pretty",
+  "Semanticscholar Corpus",
 ]
 
 read_data = fn (name) ->

@@ -22,6 +22,7 @@ defmodule JiffyBench.MixProject do
   defp deps do
     [
       {:benchee, "~> 1.0"},
+      {:benchee_html, "~> 1.0"},
       {:jiffy, path: "..", override: true},
     ]
   end

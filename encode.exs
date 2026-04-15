@@ -15,7 +15,6 @@ encode_inputs = [
   # From https://github.com/simdjson/simdjson-data
   "Twitter",
   "CITM Catalog",
-  "Tree Pretty",
   "Semanticscholar Corpus",
 ]
 
@@ -32,19 +31,18 @@ end
 bench_opts = [
   warmup: 2,
   time: 5,
-  memory_time: 0,
   inputs: for name <- encode_inputs, into: %{} do
             name
             |> read_data.()
             |> :jiffy.decode([:return_maps, :use_nil])
             |> (&{name, &1}).()
           end,
-  formatters: [Benchee.Formatters.Console]
+  exclude_outliers: true
 ]
 
 bench_opts =
   case System.get_env("BENCH_SAVE") do
-    nil -> bench_opts
+    nil -> Keyword.put(bench_opts, :formatters, [Benchee.Formatters.HTML, Benchee.Formatters.Console])
     path -> Keyword.put(bench_opts, :save, [path: path, tag: System.get_env("BENCH_TAG", "jiffy")])
   end
 

@@ -24,12 +24,18 @@ read_json = fn name ->
   File.read!(Path.expand("data/#{file}.json", __DIR__))
 end
 
+otp_json? =
+  case Integer.parse(System.otp_release()) do
+    {version, ""} when version >= 27 -> true
+    _ -> false
+  end
+
 # Build one benchee input per (op, document)
 inputs =
   inputs_list
   |> Enum.flat_map(fn name ->
     json = read_json.(name)
-    term = :jiffy.decode(json, [:return_maps, :use_nil])
+    term = :jiffy.decode(json, [:return_maps])
     [
       {"Decode " <> name, {:decode, json}},
       {"Encode " <> name, {:encode, term}},
@@ -46,12 +52,23 @@ job_name =
     _ -> "jiffy"
   end
 
-jobs = %{
-  job_name => fn
-    {:decode, json} -> :jiffy.decode(json, [:return_maps, :use_nil])
-    {:encode, term} -> :jiffy.encode(term)
-  end,
-}
+jobs =
+  %{
+    job_name => fn
+      {:decode, json} -> :jiffy.decode(json, [:return_maps])
+      {:encode, term} -> :jiffy.encode(term)
+    end,
+  }
+
+jobs =
+  if otp_json? and System.get_env("BENCH_COMPARE_OTP_JSON") == "1" do
+    Map.put(jobs, "otp json", fn
+      {:decode, json} -> :json.decode(json)
+      {:encode, term} -> :json.encode(term)
+    end)
+  else
+    jobs
+  end
 
 IO.puts("Checking jobs don't crash")
 for {name, input} <- inputs, {job, fun} <- jobs do

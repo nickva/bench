@@ -107,13 +107,14 @@ BENCH_TAG="$BASE_BRANCH" BENCH_SAVE="$RESULTS_DIR/baseline.benchee" \
     mix run bench.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
 
 # 2. Test branch, with default CFLAGS. If --native arg is not given, this is
-# the final run and loads the baseline. If --native is set, this saves its
-# result so the third run can load both as baselines for a 3-way comparison.
+# the final run and loads the baseline plus includes OTP json. If --native is
+# set, this saves its result so the third run can load both as baselines for a
+# 3-way comparison plus OTP json.
 build_branch "$TEST_BRANCH"
 
 echo ""
 echo "================================================================"
-echo "  [$TEST_BRANCH vs $BASE_BRANCH] Bench"
+echo "  [$TEST_BRANCH vs $BASE_BRANCH vs OTP json] Bench"
 echo "================================================================"
 if [ "$WITH_NATIVE" -eq 1 ]; then
     # Only save here so test.benchee contains this run
@@ -126,13 +127,16 @@ if [ "$WITH_NATIVE" -eq 1 ]; then
 
     echo ""
     echo "================================================================"
-    echo "  [$TEST_BRANCH -march=native vs $TEST_BRANCH vs $BASE_BRANCH] Bench"
+    echo "  [$TEST_BRANCH -march=native vs $TEST_BRANCH vs $BASE_BRANCH vs OTP json] Bench"
     echo "================================================================"
     BENCH_TAG="$TEST_BRANCH native" \
     BENCH_LOAD="$RESULTS_DIR/baseline.benchee:$RESULTS_DIR/test.benchee" \
+    BENCH_COMPARE_OTP_JSON=1 \
         mix run bench.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
 else
-    BENCH_TAG="$TEST_BRANCH" BENCH_LOAD="$RESULTS_DIR/baseline.benchee" \
+    BENCH_TAG="$TEST_BRANCH" \
+    BENCH_LOAD="$RESULTS_DIR/baseline.benchee" \
+    BENCH_COMPARE_OTP_JSON=1 \
         mix run bench.exs 2>&1 | grep -Ev 'Checking|Testing' | filter_output
 fi
 

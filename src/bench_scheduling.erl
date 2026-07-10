@@ -10,7 +10,7 @@
 %
 % Config with env vars. This is called from bench_scheduling.sh usually
 %
-%   BENCH_IMPLS       (default "jiffy")   jiffy,json,simdjsone,jsone,jsx
+%   BENCH_IMPLS       (default "jiffy")   jiffy,json,glazer,jsone,jsx
 %   BENCH_JSON        (default citm-catalog.json)
 %   BENCH_DURATION_MS (default 2000)
 
@@ -57,9 +57,9 @@ fns_for("jiffy") ->
 fns_for("json") ->
     { fun(J) -> json:decode(J) end,
       fun(T) -> json:encode(T) end };
-fns_for("simdjsone") ->
-    { fun(J) -> simdjson:decode(J) end,
-      fun(T) -> simdjson:encode(T) end };
+fns_for("glazer") ->
+    { fun(J) -> glazer_json:decode(J) end,
+      fun(T) -> glazer_json:encode(T) end };
 fns_for("jsone") ->
     { fun(J) -> jsone:decode(J) end,
       fun(T) -> jsone:encode(T) end };

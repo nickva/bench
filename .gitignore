@@ -1,5 +1,6 @@
 _build/
 deps/
+/jiffy
 *.beam
 erl_crash.dump
 /results/

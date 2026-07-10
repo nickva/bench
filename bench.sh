@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 #
 # Throughput benchmark driver. Compares jiffy branches and/or other libraries.
-# Expected to be run from jiffy's directory; walks up to find the project root.
+#
+# Looks for jiffy with JIFFY_ROOT or a symlink. The idea is to use this as
+# jiffy is being developed locally.
 #
 # Usage:
 #   bench/bench.sh [base_branch] [--compare LIST]
+#   JIFFY_ROOT=~/src/jiffy ./bench.sh [base_branch] [--compare LIST]
 #
 # Args:
 #   base_branch:  branch or tag (default: master) to compare current branch to
@@ -12,7 +15,7 @@
 # Flags:
 #   --compare LIST  other libs to include in the final comparison:
 #                   "jiffy"" (default), or empty for jiffy-only, or a comma
-#                   list of: json, simdjsone, jsone, jsx.
+#                   list of: json, glazer, jsone, jsx.
 #
 # Examples:
 #   bench/bench.sh                          # master vs HEAD + all libs
@@ -22,8 +25,26 @@
 set -euo pipefail
 export PATH="$HOME/bin:$PATH"
 
-JIFFY_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-BENCH_DIR="$JIFFY_ROOT/bench"
+BENCH_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+JIFFY_CANDIDATE="${JIFFY_ROOT:-}"
+if [ -z "$JIFFY_CANDIDATE" ]; then
+    if [ -e "$BENCH_DIR/jiffy/src/jiffy.erl" ]; then
+        JIFFY_CANDIDATE="$BENCH_DIR/jiffy"
+    else
+        JIFFY_CANDIDATE="$BENCH_DIR/.."
+    fi
+fi
+if ! JIFFY_ROOT="$(cd "$JIFFY_CANDIDATE" 2>/dev/null && pwd)" \
+        || [ ! -e "$JIFFY_ROOT/src/jiffy.erl" ]; then
+    echo "ERROR: no jiffy checkout in '$JIFFY_CANDIDATE'. Either:" >&2
+    echo "  - set JIFFY_ROOT=/path/to/jiffy, or" >&2
+    echo "  - symlink a checkout: ln -s /path/to/jiffy '$BENCH_DIR/jiffy', or" >&2
+    echo "  - put this bench directory inside jiffy as jiffy/bench" >&2
+    exit 1
+fi
+export JIFFY_ROOT
+
 RESULTS_DIR="$BENCH_DIR/results"
 TEST_BRANCH=$(git -C "$JIFFY_ROOT" rev-parse --abbrev-ref HEAD)
 
@@ -46,12 +67,8 @@ if ! git -C "$JIFFY_ROOT" diff --quiet || ! git -C "$JIFFY_ROOT" diff --cached -
     exit 1
 fi
 
-# Fetch deps once. simdjsone's Makefile links its .so before creating
-# priv/, so on a cold checkout the first compile fails. We try, mkdir
-# the missing dir, and retry
+# Fetch and build deps once
 (cd "$BENCH_DIR" && mix deps.get >/dev/null)
-(cd "$BENCH_DIR" && mix deps.compile simdjsone >/dev/null 2>&1) || true
-mkdir -p "$BENCH_DIR/_build/dev/lib/simdjsone/priv"
 (cd "$BENCH_DIR" && mix deps.compile >/dev/null)
 
 ORIG_REF=$(git -C "$JIFFY_ROOT" rev-parse HEAD)

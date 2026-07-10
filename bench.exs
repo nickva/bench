@@ -3,7 +3,7 @@
 #
 # Config via env vars. These are set from bench.sh script usually.
 #
-#   BENCH_COMPARE   "all" or comma-separated list of: json, simdjsone,
+#   BENCH_COMPARE   "all" or comma-separated list of: json, glazer,
 #                   jsone, jsx. Default is "" (nothing)
 #   BENCH_SAVE      path to save benchee results (for branch comparisons).
 #   BENCH_LOAD      ':'-separated list of benchee files to load as
@@ -64,9 +64,9 @@ alternatives = %{
     {:decode, j} -> :json.decode(j)
     {:encode, t} -> :json.encode(t)
   end,
-  "simdjsone" => fn
-    {:decode, j} -> :simdjson.decode(j)
-    {:encode, t} -> :simdjson.encode(t)
+  "glazer" => fn
+    {:decode, j} -> :glazer_json.decode(j)
+    {:encode, t} -> :glazer_json.encode(t)
   end,
   "jsone" => fn
     {:decode, j} -> :jsone.decode(j)

@@ -4,7 +4,21 @@ This is clone of the Jason bench https://github.com/michalmuskala/jason with a
 bunch more data sets from various other json benchmarks I found. The primary
 use it to benchmark Jiffy against itself (release 1.1.3 vs release 2.0.0, etc),
 but it can also test Jiffy against the built-in OTP `json` module and a few
-other Erlang libraries.
+other Erlang libraries (`glazer`, `jsone`, etc).
+
+##### Pointing at a jiffy checkout
+
+The scripts locate the jiffy checkout to benchmark:
+
+ * `JIFFY_ROOT` environment variable:
+   ```shell
+   JIFFY_ROOT=~/src/jiffy ./bench.sh
+   ```
+ * Symlink:
+   ```shell
+   ln -s ~/src/jiffy jiffy
+   ./bench.sh
+   ```
 
 ##### Examples on how to run it:
 
@@ -33,7 +47,10 @@ there is separate `bench_scheduling` benchmark. This benchmark spawns parallel
 pairs of proceses which encode, decode and then ping-pong a term back and forth
 between them, while measuring both latency and throughput.
 
-Example run with Jiffy 2.0.0
+Example run with Jiffy 2.0.2. As concurrency increases there is more
+pressure on GC and contention on dirty CPU scheduler. Jiffy's yielding
+architecture proves its worth. The built-in json module does fairly well and
+degrades predictably, too:
 
 ```shell
 ./bench_scheduling.sh
@@ -41,30 +58,30 @@ Example run with Jiffy 2.0.0
 scheduler responsiveness check
   input:       citm-catalog.json duration: 2000
   schedulers:  12 online
-  impls:       json, jiffy, simdjsone, jsone, jsx
+  impls:       json, jiffy, glazer, jsone, jsx
 
 [json]
-  1x encdec                    n=84 p50=135.0ms p95=182.9ms p99=191.9ms max=196.7ms
-  12x encdec                   n=86 p50=129.7ms p95=189.9ms p99=203.0ms max=206.2ms
-  24x encdec                   n=87 p50=263.0ms p95=461.2ms p99=506.1ms max=527.1ms
+  1x encdec                    n=108 p50=109.5ms p95=166.3ms p99=170.2ms max=172.2ms
+  12x encdec                   n=108 p50=110.2ms p95=162.2ms p99=169.1ms max=170.7ms
+  24x encdec                   n=97 p50=221.7ms p95=366.6ms p99=404.3ms max=425.7ms
 
 [jiffy]
-  1x encdec                    n=309 p50=38.3ms p95=51.9ms p99=57.4ms max=66.5ms
-  12x encdec                   n=300 p50=41.2ms p95=52.5ms p99=59.7ms max=66.2ms
-  24x encdec                   n=306 p50=80.2ms p95=111.8ms p99=118.8ms max=140.1ms
+  1x encdec                    n=364 p50=32.4ms p95=41.3ms p99=46.3ms max=49.8ms
+  12x encdec                   n=382 p50=31.2ms p95=38.5ms p99=43.6ms max=48.1ms
+  24x encdec                   n=373 p50=65.4ms p95=97.7ms p99=118.8ms max=146.6ms
 
-[simdjsone]
-  1x encdec                    n=20 p50=690.1ms p95=784.6ms p99=784.6ms max=784.8ms
-  12x encdec                   n=16 p50=790.9ms p95=887.5ms p99=887.5ms max=899.9ms
-  24x encdec                   n=24 p50=1448.4ms p95=1876.7ms p99=1879.5ms max=1882.7ms
+[glazer]
+  1x encdec                    n=24 p50=242.6ms p95=712.4ms p99=712.4ms max=713.2ms
+  12x encdec                   n=24 p50=245.7ms p95=844.2ms p99=849.1ms max=855.6ms
+  24x encdec                   n=24 p50=1398.2ms p95=1628.4ms p99=1632.5ms max=1639.5ms
 
 [jsone]
-  1x encdec                    n=60 p50=213.1ms p95=261.8ms p99=263.9ms max=264.8ms
-  12x encdec                   n=60 p50=204.9ms p95=329.8ms p99=345.0ms max=350.9ms
-  24x encdec                   n=52 p50=440.1ms p95=700.3ms p99=773.3ms max=817.3ms
+  1x encdec                    n=60 p50=188.6ms p95=234.8ms p99=237.0ms max=237.2ms
+  12x encdec                   n=60 p50=187.4ms p95=331.4ms p99=338.5ms max=351.5ms
+  24x encdec                   n=62 p50=359.2ms p95=570.7ms p99=601.3ms max=687.6ms
 
 [jsx]
-  1x encdec                    n=24 p50=398.8ms p95=539.0ms p99=544.1ms max=548.3ms
-  12x encdec                   n=24 p50=391.5ms p95=684.9ms p99=687.0ms max=689.6ms
-  24x encdec                   n=24 p50=1181.3ms p95=1479.0ms p99=1558.1ms max=1654.7ms
+  1x encdec                    n=36 p50=305.1ms p95=449.3ms p99=455.5ms max=458.5ms
+  12x encdec                   n=36 p50=310.3ms p95=657.2ms p99=666.8ms max=674.6ms
+  24x encdec                   n=24 p50=1068.3ms p95=1203.0ms p99=1368.8ms max=1387.9ms
 ```

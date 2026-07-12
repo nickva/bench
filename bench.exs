@@ -122,7 +122,10 @@ bench_opts =
     formatters:
       if(saving?,
         do: [Benchee.Formatters.Console],
-        else: [Benchee.Formatters.HTML, Benchee.Formatters.Console])
+        else: [
+          {Benchee.Formatters.HTML, auto_open: false},
+          Benchee.Formatters.Console
+        ])
   ]
   |> Keyword.merge(
     case System.get_env("BENCH_SAVE") do

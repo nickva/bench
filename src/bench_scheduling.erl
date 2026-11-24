@@ -46,7 +46,7 @@ run_impl(Impl, Json, Term, DurMs, Scheds) ->
     io:format("~n[~s]~n", [Impl]),
     % Sanity check
     DecFn(Json), EncFn(Term),
-    run_encdec(label("~px encdec", [1]), DecFn, EncFn, Json, Scheds, DurMs),
+    run_encdec(label("~px encdec", [1]), DecFn, EncFn, Json, 1, DurMs),
     run_encdec(label("~px encdec", [Scheds]), DecFn, EncFn, Json, Scheds, DurMs),
     run_encdec(label("~px encdec", [2 * Scheds]), DecFn, EncFn, Json, 2 * Scheds, DurMs).
 

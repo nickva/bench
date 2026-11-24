@@ -47,7 +47,7 @@ there is separate `bench_scheduling` benchmark. This benchmark spawns parallel
 pairs of proceses which encode, decode and then ping-pong a term back and forth
 between them, while measuring both latency and throughput.
 
-Example run with Jiffy 2.0.2. As concurrency increases there is more
+Example run with Jiffy 2.1.0. As concurrency increases there is more
 pressure on GC and contention on dirty CPU scheduler. Jiffy's yielding
 architecture proves its worth. The built-in json module does fairly well and
 degrades predictably, too:
@@ -61,27 +61,27 @@ scheduler responsiveness check
   impls:       json, jiffy, glazer, jsone, jsx
 
 [json]
-  1x encdec                    n=108 p50=109.5ms p95=166.3ms p99=170.2ms max=172.2ms
-  12x encdec                   n=108 p50=110.2ms p95=162.2ms p99=169.1ms max=170.7ms
-  24x encdec                   n=97 p50=221.7ms p95=366.6ms p99=404.3ms max=425.7ms
+  1x encdec                    n=20 p50=48.1ms p95=54.0ms p99=54.0ms max=80.1ms
+  12x encdec                   n=108 p50=109.0ms p95=148.1ms p99=153.1ms max=168.5ms
+  24x encdec                   n=99 p50=214.4ms p95=389.1ms p99=479.6ms max=525.5ms
 
 [jiffy]
-  1x encdec                    n=364 p50=32.4ms p95=41.3ms p99=46.3ms max=49.8ms
-  12x encdec                   n=382 p50=31.2ms p95=38.5ms p99=43.6ms max=48.1ms
-  24x encdec                   n=373 p50=65.4ms p95=97.7ms p99=118.8ms max=146.6ms
+  1x encdec                    n=74 p50=13.0ms p95=16.8ms p99=29.7ms max=44.8ms
+  12x encdec                   n=424 p50=28.2ms p95=35.5ms p99=40.6ms max=45.0ms
+  24x encdec                   n=404 p50=59.2ms p95=98.0ms p99=122.1ms max=146.6ms
 
 [glazer]
-  1x encdec                    n=24 p50=242.6ms p95=712.4ms p99=712.4ms max=713.2ms
-  12x encdec                   n=24 p50=245.7ms p95=844.2ms p99=849.1ms max=855.6ms
-  24x encdec                   n=24 p50=1398.2ms p95=1628.4ms p99=1632.5ms max=1639.5ms
+  1x encdec                    n=182 p50=5.2ms p95=7.2ms p99=10.4ms max=31.8ms
+  12x encdec                   n=202 p50=62.9ms p95=114.9ms p99=120.6ms max=121.8ms
+  24x encdec                   n=166 p50=141.7ms p95=203.7ms p99=305.7ms max=305.7ms
 
 [jsone]
-  1x encdec                    n=60 p50=188.6ms p95=234.8ms p99=237.0ms max=237.2ms
-  12x encdec                   n=60 p50=187.4ms p95=331.4ms p99=338.5ms max=351.5ms
-  24x encdec                   n=62 p50=359.2ms p95=570.7ms p99=601.3ms max=687.6ms
+  1x encdec                    n=12 p50=77.5ms p95=99.3ms p99=99.3ms max=115.9ms
+  12x encdec                   n=60 p50=182.6ms p95=225.0ms p99=232.2ms max=234.7ms
+  24x encdec                   n=68 p50=353.8ms p95=525.3ms p99=588.4ms max=598.5ms
 
 [jsx]
-  1x encdec                    n=36 p50=305.1ms p95=449.3ms p99=455.5ms max=458.5ms
-  12x encdec                   n=36 p50=310.3ms p95=657.2ms p99=666.8ms max=674.6ms
-  24x encdec                   n=24 p50=1068.3ms p95=1203.0ms p99=1368.8ms max=1387.9ms
+  1x encdec                    n=6 p50=150.0ms p95=166.2ms p99=166.2ms max=259.1ms
+  12x encdec                   n=36 p50=309.7ms p95=615.9ms p99=619.6ms max=636.0ms
+  24x encdec                   n=24 p50=1086.7ms p95=1263.9ms p99=1355.0ms max=1405.5ms
 ```

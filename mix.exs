@@ -40,7 +40,7 @@ defmodule JiffyBench.MixProject do
       {:benchee, "~> 1.0"},
       {:benchee_html, "~> 1.0"},
       {:jiffy, path: jiffy_root(), override: true},
-      {:glazer, "~> 0.5", manager: :rebar3},
+      {:glazer, "~> 1.2", manager: :rebar3},
       {:jsone, "~> 1.9"},
       {:jsx, "~> 3.1"},
     ]

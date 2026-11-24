@@ -10,15 +10,15 @@
 #   JIFFY_ROOT=~/src/jiffy ./bench.sh [base_branch] [--compare LIST]
 #
 # Args:
-#   base_branch:  branch or tag (default: master) to compare current branch to
+#   base_branch:  branch or tag (default: master) to compare the current checkout to
 #
 # Flags:
-#   --compare LIST  other libs to include in the final comparison:
-#                   "jiffy"" (default), or empty for jiffy-only, or a comma
-#                   list of: json, glazer, jsone, jsx.
+#   --compare LIST  other libs to include in the final comparison: a comma
+#                   list of json, glazer, jsone, jsx, or "all". Default: none,
+#                   jiffy only.
 #
 # Examples:
-#   bench/bench.sh                          # master vs HEAD + all libs
+#   bench/bench.sh                          # master vs HEAD
 #   bench/bench.sh v1.1.3                   # v1.1.3 vs HEAD
 #   bench/bench.sh --compare jsone,jsx      # compare jiffy to two external libraries
 
@@ -46,7 +46,9 @@ fi
 export JIFFY_ROOT
 
 RESULTS_DIR="$BENCH_DIR/results"
-TEST_BRANCH=$(git -C "$JIFFY_ROOT" rev-parse --abbrev-ref HEAD)
+TEST_BRANCH=$(git -C "$JIFFY_ROOT" symbolic-ref --short -q HEAD \
+    || git -C "$JIFFY_ROOT" describe --tags --exact-match 2>/dev/null \
+    || git -C "$JIFFY_ROOT" rev-parse --short HEAD)
 
 BASE_BRANCH=master
 COMPARE=""
